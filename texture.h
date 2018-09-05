@@ -4,8 +4,13 @@
  **/
 
 #pragma once
+#pragma warning (disable : 4996)
 
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <windows.h>
 #include "noise.h"
+
 
 // t_scale
 float t_scale(float x) {
@@ -25,6 +30,13 @@ Vec3f skyMap(float a) {
 	Vec3f white = Vec3f(1, 1, 1);
 	Vec3f color = Vec3f(1, 0, 0);
 	return ((1 - a) * white + a * color);
+}
+
+// fireMap
+Vec3f fireMap(float a) {
+	Vec3f black = Vec3f(0, 0, 0);
+	Vec3f color = Vec3f(0, 0, 1);
+	return ((1 - a) * black + a * color);
 }
 
 void loadBMP_custom(GLuint textureArray[], const char * imagepath, int n) {
@@ -105,7 +117,8 @@ void codedTexture(UINT textureArray[], int n, int type) {
 	for (int i = 0; i < TexHeight; i++)
 		for (int j = 0; j < TexWidth; j++) {
 			if (type == 0) pixelColor = skyMap(t_scale(noise.perlinMultiscale(i * 5, j * 5)));
-			else pixelColor = marbleMap(t_scale(noise.perlinMarble(i * 5, j * 5)));
+			else if (type == 1) pixelColor = marbleMap(t_scale(noise.perlinMarble(i * 5, j * 5)));
+			else pixelColor = fireMap(t_scale(noise.perlinFire(i * 5, j * 5)));
 			textureImage[i][j][0] = pixelColor[0] * 255;
 			textureImage[i][j][1] = pixelColor[1] * 255;
 			textureImage[i][j][2] = pixelColor[2] * 255;

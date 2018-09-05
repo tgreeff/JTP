@@ -3,6 +3,7 @@
  * https://speakerdeck.com/javiergs/ser431-lecture-04
  **/
 
+#include <stdlib.h>
 #include <GL/glut.h>
 #include <fstream>
 #include "mesh.h"
@@ -10,19 +11,21 @@
 #include "render.h"
 #include "controls.h"
 
+
 // global
-Mesh *mesh1, *mesh2, *mesh3, *mesh4, *mesh5;
-GLuint display1, display2, display3, display4, display5;
+Mesh *mesh1, *mesh2, *mesh3, *mesh4, *mesh5, *mesh6;
+GLuint display1, display2, display3, display4, display5, display6;
 GLuint textures[5];
 
 // init
 void init() {
 	// mesh
 	mesh1 = createPlane(2000, 2000, 200);
-	mesh5 = createSkyBox(6000);
 	mesh2 = createCube();
 	mesh3 = createCube();
 	mesh4 = createCube();
+	mesh5 = createSkyBox(6000);
+	mesh6 = createPlane(3000, 3000, 300);
 	
 	// normals
 	calculateNormalPerFace(mesh1);
@@ -30,18 +33,21 @@ void init() {
 	calculateNormalPerFace(mesh3);
 	calculateNormalPerFace(mesh4);
 	calculateNormalPerFace(mesh5);
+	calculateNormalPerFace(mesh6);
 	calculateNormalPerVertex(mesh1);
 	calculateNormalPerVertex(mesh2);
 	calculateNormalPerVertex(mesh3);
 	calculateNormalPerVertex(mesh4);
 	calculateNormalPerVertex(mesh5);
+	calculateNormalPerVertex(mesh6);
 	
 	// textures
-	loadBMP_custom(textures, "../../BMP files/brick.bmp", 0);
-	loadBMP_custom(textures, "../../BMP files/oldbox.bmp", 1);
+	loadBMP_custom(textures, "_BMP_files/brick.bmp", 0);
+	loadBMP_custom(textures, "_BMP_files/oldbox.bmp", 1);
 	codedTexture(textures, 2, 0); //Sky texture - noise multiscale. Type=0
 	codedTexture(textures, 3, 1); //Marble texture - noise marble. Type=1
-	loadBMP_custom(textures, "../../BMP files/cubesky.bmp", 4);
+	loadBMP_custom(textures, "_BMP_files/cubesky.bmp", 4);
+	codedTexture(textures, 5, 2); //Fire texture - noise fire. Type=2
 
 	// display lists
 	display1 = meshToDisplayList(mesh1, 1, textures[0]);
@@ -49,7 +55,8 @@ void init() {
 	display3 = meshToDisplayList(mesh3, 3, textures[2]);
 	display4 = meshToDisplayList(mesh4, 4, textures[3]);
 	display5 = meshToDisplayList(mesh5, 5, textures[4]);
-	
+	display6 = meshToDisplayList(mesh6, 6, textures[5]);
+
 	// configuration
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_DEPTH_TEST);
@@ -57,7 +64,7 @@ void init() {
 	// light
 	glEnable(GL_LIGHT0);
 	glEnable(GL_LIGHTING);
-	GLfloat light_ambient[]  = { 0.5, 0.5, 0.5, 1.0 };
+	GLfloat light_ambient[]  = { 255.5, 255.5, 255.5, 1.0 };
 	GLfloat light_diffuse[]  = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat light_position[] = { 0.0, 0.0, 1.0, 0.0 };
@@ -98,7 +105,7 @@ void display(void) {
 	// lookAt
 	// gluLookAt(0.0f, 40.0f, 320.0,	0.0f, 1.0f, -1.0f,		0.0f, 1.0f, 0.0f);
 
-	gluLookAt(camera_x, camera_y, camera_z, camera_viewing_x, camera_viewing_y, camera_viewing_z,		0.0f, 1.0f, 0.0f);
+	gluLookAt(camera_x, camera_y, camera_z, camera_viewing_x, camera_viewing_y, camera_viewing_z, 0.0f, 1.0f, 0.0f);
 	// camera
 	//glScalef(scale, scale, scale);
 	//glRotatef(x_angle, 1.0f, 0.0f, 0.0f);
@@ -132,6 +139,11 @@ void display(void) {
 	glCallList(display5);
 	glPopMatrix();
 	// end
+	glPushMatrix();
+	glTranslatef(-1500, 199.9, -1500);
+	glCallList(display6);
+	glPopMatrix();
+	//
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
@@ -192,19 +204,48 @@ void specialkeys(int key, int x, int y) {
 	} else if (key == GLUT_KEY_DOWN) {
 		//printf("Down key is pressed\n");
 		//camera_z += 10;
-		camera_x += (-10) * sin(total_moving_angle);//*0.1;
-		camera_z += (-10) * -cos(total_moving_angle);//*0.1;
+		// X movemment
+		if (camera_x <= 1000 && camera_x >= -1000) {
+			camera_x += (-10) * sin(total_moving_angle);//*0.1;
+			camera_viewing_x += (-10) * sin(total_moving_angle);//*0.1;
+		}
+
+		// Z movement
+		if (camera_z <= 1000 && camera_z >= -1000) {
+			camera_z += (-10) * -cos(total_moving_angle);//*0.1;
+			camera_viewing_z += (-10) * -cos(total_moving_angle);//*0.1;
+		}	
 		//camera_viewing_y -= 10;
-		camera_viewing_x += (-10) * sin(total_moving_angle);//*0.1;
-		camera_viewing_z += (-10) * -cos(total_moving_angle);//*0.1;
+			
 	} else if (key == GLUT_KEY_UP) {
 		//printf("Up key is pressed\n");
 		//camera_z -= 10;
-		camera_x += (10) * sin(total_moving_angle);//*0.1;
-		camera_z += (10) * -cos(total_moving_angle);//*0.1;
-		camera_viewing_x += (10) * sin(total_moving_angle);//*0.1;
-		camera_viewing_z += (10) * -cos(total_moving_angle);//*0.1;
+		if (camera_x <= 1000 && camera_x >= -1000) {
+			camera_x += (10) * sin(total_moving_angle);//*0.1;
+			camera_viewing_x += (10) * sin(total_moving_angle);//*0.1;
+		}
+
+		if (camera_z <= 1000 && camera_z >= -1000) {
+			camera_z += (10) * -cos(total_moving_angle);//*0.1;
+			camera_viewing_z += (10) * -cos(total_moving_angle);//*0.1;
+		}	
 		//camera_viewing_y += 10;
+	}
+
+	// Camera X verification
+	if (camera_x > 1000) {
+		camera_x = 1000;
+	}
+	else if (camera_x < -1000) {
+		camera_x = -1000;
+	}
+
+	// Camera Z verification
+	if (camera_z > 1000) {
+		camera_z = 1000;
+	}
+	else if (camera_z < -1000) {
+		camera_z = -1000;
 	}
 }
 
