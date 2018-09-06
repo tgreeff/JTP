@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <GL/glut.h>
+#include <glut.h>
 #include <fstream>
 #include "mesh.h"
 #include "texture.h"
@@ -20,12 +21,12 @@ GLuint textures[5];
 // init
 void init() {
 	// mesh
-	mesh1 = createPlane(2000, 2000, 200);
+	mesh1 = createPlane(4000, 4000, 400);
 	mesh2 = createCube();
 	mesh3 = createCube();
 	mesh4 = createCube();
 	mesh5 = createSkyBox(6000);
-	mesh6 = createPlane(3000, 3000, 300);
+	mesh6 = createPlane(6000, 6000, 600);
 	
 	// normals
 	calculateNormalPerFace(mesh1);
@@ -102,15 +103,14 @@ void display(void) {
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
-	// lookAt
-	// gluLookAt(0.0f, 40.0f, 320.0,	0.0f, 1.0f, -1.0f,		0.0f, 1.0f, 0.0f);
 
+	// lookAt
 	gluLookAt(camera_x, camera_y, camera_z, camera_viewing_x, camera_viewing_y, camera_viewing_z, 0.0f, 1.0f, 0.0f);
 	// camera
-	//glScalef(scale, scale, scale);
-	//glRotatef(x_angle, 1.0f, 0.0f, 0.0f);
-	//glRotatef(y_angle, 0.0f, 1.0f, 0.0f);
-	//glTranslatef(0.0f, 0.0f, 0.0f);
+	glScalef(scale, scale, scale);
+	glRotatef(x_angle, 1.0f, 0.0f, 0.0f);
+	glRotatef(y_angle, 0.0f, 1.0f, 0.0f);
+	glTranslatef(0.0f, 0.0f, 0.0f);
 
 	//plane
 	glPushMatrix();
@@ -196,14 +196,14 @@ void callbackKeyboard(unsigned char key, int x, int y) {
 // callback function for arrows
 void specialkeys(int key, int x, int y) {
 	if (key == GLUT_KEY_LEFT) {
-		total_moving_angle += -0.01;
-		rotate_point(-0.01);
+		total_moving_angle += -0.02;
+		rotate_point(-0.02);
 	} else if (key == GLUT_KEY_RIGHT) {
-		total_moving_angle += 0.01; 
-		rotate_point(0.01);
+		total_moving_angle += 0.02; 
+		rotate_point(0.02);
 	} else if (key == GLUT_KEY_DOWN) {
-		//printf("Down key is pressed\n");
-		//camera_z += 10;
+		printf("Down key is pressed\n");
+		camera_z += 10;
 		// X movemment
 		if (camera_x <= 1000 && camera_x >= -1000) {
 			camera_x += (-10) * sin(total_moving_angle);//*0.1;
@@ -215,11 +215,11 @@ void specialkeys(int key, int x, int y) {
 			camera_z += (-10) * -cos(total_moving_angle);//*0.1;
 			camera_viewing_z += (-10) * -cos(total_moving_angle);//*0.1;
 		}	
-		//camera_viewing_y -= 10;
+		camera_viewing_y -= 10;
 			
 	} else if (key == GLUT_KEY_UP) {
-		//printf("Up key is pressed\n");
-		//camera_z -= 10;
+		printf("Up key is pressed\n");
+		camera_z -= 10;
 		if (camera_x <= 1000 && camera_x >= -1000) {
 			camera_x += (10) * sin(total_moving_angle);//*0.1;
 			camera_viewing_x += (10) * sin(total_moving_angle);//*0.1;
@@ -229,7 +229,7 @@ void specialkeys(int key, int x, int y) {
 			camera_z += (10) * -cos(total_moving_angle);//*0.1;
 			camera_viewing_z += (10) * -cos(total_moving_angle);//*0.1;
 		}	
-		//camera_viewing_y += 10;
+		camera_viewing_y += 10;
 	}
 
 	// Camera X verification
