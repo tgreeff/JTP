@@ -388,6 +388,44 @@ Mesh* createPlane(int arena_width, int arena_depth, int arena_cell) {
 	return me;
 }
 
+Mesh* createPerlinPlane(int arena_width, int arena_depth, int arena_cell) {
+	Mesh *me = new Mesh;
+	int n = (arena_cell + arena_width) / arena_cell;
+	int m = (arena_cell + arena_depth) / arena_cell;
+
+	ImprovedNoise ynoise;
+
+	// vertices
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			me->dot_vertex.push_back(Vec3<GLfloat>(i*arena_cell, ynoise.perlinMapMultiScale(i * 20, j * 20), j*arena_cell));
+		}
+	}
+	//texture
+	me->dot_texture.push_back(Vec2<GLfloat>(0.0, 0.0));
+	me->dot_texture.push_back(Vec2<GLfloat>(0.0, 1.0));
+	me->dot_texture.push_back(Vec2<GLfloat>(1.0, 0.0));
+	me->dot_texture.push_back(Vec2<GLfloat>(1.0, 1.0));
+	// faces
+	for (int i = 0; i < (n*m) - m; i++) {
+		if ((i + 1) % n == 0) continue;
+		me->face_index_vertex.push_back(i); me->face_index_vertex.push_back(i + 1);
+		me->face_index_vertex.push_back(i + n);
+		me->face_index_vertex.push_back(i + 1); me->face_index_vertex.push_back(i + n + 1);
+		me->face_index_vertex.push_back(i + n);
+		// index for texture
+		for (int t = 0; t < 6; t++) {
+			me->face_index_texture.push_back(3);//0
+			me->face_index_texture.push_back(2);//2
+			me->face_index_texture.push_back(1);//1
+			me->face_index_texture.push_back(2);//0
+			me->face_index_texture.push_back(0);//3
+			me->face_index_texture.push_back(1);//2
+		}
+	}
+	return me;
+}
+
 // normal per face
 void calculateNormalPerFace(Mesh* m) {
 	Vec3<float> v1, v2, v3, v4, v5;
