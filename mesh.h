@@ -360,7 +360,7 @@ Mesh* createPlane(int arena_width, int arena_depth, int arena_cell) {
 	// vertices
 	for (int i = 0; i<n; i++) {
 		for (int j = 0; j < m; j++) {
-			me->dot_vertex.push_back(Vec3<GLfloat>(i*arena_cell, ynoise.perlinMultiscale(i*20,j*20), j*arena_cell));
+			me->dot_vertex.push_back(Vec3<GLfloat>(i*arena_cell, ynoise.perlinMultiscale(i * 20, j * 20), j*arena_cell));
 		}
 	}
 	//texture

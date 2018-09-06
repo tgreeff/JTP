@@ -119,23 +119,23 @@ void display(void) {
 	glPopMatrix();
 	// box 1
 	glPushMatrix();
-	glTranslatef(0, 300, 0);
+	glTranslatef(moveBlock, 200, moveBlock_side);
 	glCallList(display2);
 	glPopMatrix();
 	// box 2
 	glPushMatrix();
-	glTranslatef(200, 300, 0);
+	glTranslatef(200, 200, 0);
 	glCallList(display3);
 	glPopMatrix();
 	// box 3
 	glPushMatrix();
-	glTranslatef(-200, 300, 0);
+	glTranslatef(-200, 200, 0);
 	glCallList(display4);
 	glPopMatrix();
 	// end
 	// skybox
 	glPushMatrix();
-	glTranslatef(-1500, -1, -1500);
+	glTranslatef(-1500, -2500, -1500);
 	glCallList(display5);
 	glPopMatrix();
 	// end
@@ -159,6 +159,7 @@ void display(void) {
 	glColor3f(1.0, 1.0, 1.0);
 	renderBitmapString(0.0, window_height - 13.0f, 0.0f, "Use [Arrows] to move in plain");
 	renderBitmapString(0.0, window_height - 26.0f, 0.0f, "Use [W and S] to look up and down");
+	renderBitmapString(0.0, window_height - 39.0f, 0.0f, "Use I, J, K and L to move the box");
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
@@ -190,6 +191,19 @@ void callbackKeyboard(unsigned char key, int x, int y) {
 		case 's': case 'S':
 			camera_viewing_y -= (10);
 			break;
+		case 'l': case 'L':
+			moveBlock += (10);
+			break;
+		case 'j': case 'J':
+			moveBlock -= (10);
+			break;
+		case 'k': case 'K':
+			moveBlock_side += (10);
+			break;
+		case 'i': case 'I':
+			moveBlock_side -= (10);
+			break;
+		
 	}
 }
 
