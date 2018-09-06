@@ -18,15 +18,18 @@ Mesh *mesh1, *mesh2, *mesh3, *mesh4, *mesh5, *mesh6;
 GLuint display1, display2, display3, display4, display5, display6;
 GLuint textures[5];
 
+const int boundaryMeshSize = 6000;
+const int perlinMeshSize = 4000;
+const int skyBoxMeshSize = 6000;
 // init
 void init() {
 	// mesh
-	mesh1 = createPlane(4000, 4000, 400);
+	mesh1 = createPerlinPlane(4000, 4000, 400);
 	mesh2 = createCube();
 	mesh3 = createCube();
 	mesh4 = createCube();
-	mesh5 = createSkyBox(6000);
-	mesh6 = createPlane(6000, 6000, 600);
+	mesh5 = createSkyBox(skyBoxMeshSize);
+	mesh6 = createPlane(boundaryMeshSize, boundaryMeshSize, boundaryMeshSize/10);
 	
 	// normals
 	calculateNormalPerFace(mesh1);
@@ -114,7 +117,7 @@ void display(void) {
 
 	//plane
 	glPushMatrix();
-	glTranslatef(-1000, 200, -1000);
+	glTranslatef(-2000, 200, -2000);
 	glCallList(display1);
 	glPopMatrix();
 	// box 1
@@ -135,12 +138,12 @@ void display(void) {
 	// end
 	// skybox
 	glPushMatrix();
-	glTranslatef(-1500, -1, -1500);
+	glTranslatef(-skyBoxMeshSize / 2, -1, -skyBoxMeshSize / 2);
 	glCallList(display5);
 	glPopMatrix();
 	// end
 	glPushMatrix();
-	glTranslatef(-1500, 199.9, -1500);
+	glTranslatef(-boundaryMeshSize/2, 199.9, -boundaryMeshSize / 2);
 	glCallList(display6);
 	glPopMatrix();
 	//
@@ -203,33 +206,32 @@ void specialkeys(int key, int x, int y) {
 		rotate_point(0.02);
 	} else if (key == GLUT_KEY_DOWN) {
 		printf("Down key is pressed\n");
-		camera_z += 10;
+		//camera_z += 10;
 		// X movemment
-		if (camera_x <= 1000 && camera_x >= -1000) {
+		if (camera_x <= perlinMeshSize / 2 && camera_x >= -perlinMeshSize / 2) {
 			camera_x += (-10) * sin(total_moving_angle);//*0.1;
 			camera_viewing_x += (-10) * sin(total_moving_angle);//*0.1;
 		}
 
 		// Z movement
-		if (camera_z <= 1000 && camera_z >= -1000) {
+		if (camera_z <= perlinMeshSize / 2 && camera_z >= -perlinMeshSize / 2) {
 			camera_z += (-10) * -cos(total_moving_angle);//*0.1;
 			camera_viewing_z += (-10) * -cos(total_moving_angle);//*0.1;
 		}	
-		camera_viewing_y -= 10;
+		//camera_viewing_y -= 10;
 			
 	} else if (key == GLUT_KEY_UP) {
 		printf("Up key is pressed\n");
-		camera_z -= 10;
-		if (camera_x <= 1000 && camera_x >= -1000) {
+		if (camera_x <= boundaryMeshSize / 2 && camera_x >= -boundaryMeshSize / 2) {
 			camera_x += (10) * sin(total_moving_angle);//*0.1;
 			camera_viewing_x += (10) * sin(total_moving_angle);//*0.1;
 		}
 
-		if (camera_z <= 1000 && camera_z >= -1000) {
+		if (camera_z <= boundaryMeshSize / 2 && camera_z >= -boundaryMeshSize / 2) {
 			camera_z += (10) * -cos(total_moving_angle);//*0.1;
 			camera_viewing_z += (10) * -cos(total_moving_angle);//*0.1;
 		}	
-		camera_viewing_y += 10;
+		//camera_viewing_y += 10;
 	}
 
 	// Camera X verification

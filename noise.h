@@ -67,7 +67,21 @@ public:
 	double perlinMultiscale(float x, float y) {
 		double total = 0;
 		double scale = 0.005;
-		double p = .1; //0.1; //persistence 
+		double p = 2.0; //0.1; //persistence 
+		double n = 7.0; //3.0; // number of octaves
+		double frequency, amplitude;
+		for (int i = 0; i<n; i++) {
+			frequency = pow(2, (double)i);
+			amplitude = pow(p, (double)-i) * 2;
+			total = total + noise(scale*frequency* x, scale*frequency* y, 11.5) * amplitude;
+		}
+		return total;
+	}
+
+	double perlinMapMultiScale(float x, float y) {
+		double total = 0;
+		double scale = 0.005;
+		double p = 0.1; //0.1; //persistence 
 		double n = 3.0; //3.0; // number of octaves
 		double frequency, amplitude;
 		for (int i = 0; i<n; i++) {
