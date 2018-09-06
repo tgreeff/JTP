@@ -7,6 +7,7 @@
 
 #include <Imath/imathvec.h>
 #include <vector>
+#include "noise.h"
 
 using namespace Imath;
 using namespace std;
@@ -354,10 +355,12 @@ Mesh* createPlane(int arena_width, int arena_depth, int arena_cell) {
 	int n = (arena_cell+arena_width) / arena_cell;
 	int m = (arena_cell+arena_depth) / arena_cell;
 
+	ImprovedNoise ynoise;
+
 	// vertices
 	for (int i = 0; i<n; i++) {
 		for (int j = 0; j < m; j++) {
-			me->dot_vertex.push_back(Vec3<GLfloat>(i*arena_cell, 0.0, j*arena_cell));
+			me->dot_vertex.push_back(Vec3<GLfloat>(i*arena_cell, ynoise.perlinMultiscale(i*20,j*20), j*arena_cell));
 		}
 	}
 	//texture

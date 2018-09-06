@@ -21,11 +21,11 @@ float y_angle = 0.0;
 
 // camera
 float camera_x = 0.0;
-float camera_y = 300.0;
+float camera_y = 150.0;
 float camera_z = 320.0;
 
 float camera_viewing_x = 0.0;
-float camera_viewing_y = 301.0;
+float camera_viewing_y = 0.0;
 float camera_viewing_z = 0.0;
 
 float total_moving_angle = 0.0;
