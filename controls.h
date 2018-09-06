@@ -29,3 +29,6 @@ float camera_viewing_y = 0.0;
 float camera_viewing_z = 0.0;
 
 float total_moving_angle = 0.0;
+
+float moveBlock = 0.0;
+float moveBlock_side = 0.0;
