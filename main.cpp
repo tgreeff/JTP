@@ -1,6 +1,8 @@
 /**
  * SER 431
  * https://speakerdeck.com/javiergs/ser431-lecture-04
+ Taylor Greeff - tgreeff
+ Preston Goulet - pegoulet
  **/
 
 #include <stdlib.h>
@@ -146,7 +148,7 @@ void display(void) {
 	glPopMatrix();
 	// skybox
 	glPushMatrix();
-	glTranslatef(-skyBoxMeshSize / 2, 0, -skyBoxMeshSize / 2);
+	glTranslatef(-skyBoxMeshSize / 2, -1500, -skyBoxMeshSize / 2);
 	glCallList(display5);
 	glPopMatrix();
 	//lava/fire
@@ -236,7 +238,7 @@ void callbackKeyboard(unsigned char key, int x, int y) {
 	}
 
 	// box Z verification
-	if (boxPositionZ >meshSize) {
+	if (boxPositionZ > meshSize) {
 		boxPositionZ = meshSize;
 	}
 	else if (boxPositionZ < -meshSize) {
@@ -247,7 +249,7 @@ void callbackKeyboard(unsigned char key, int x, int y) {
 // callback function for arrows
 void specialkeys(int key, int x, int y) {
 
-	int cameraSpeed = 1;
+	int cameraSpeed = 10;
 	int boxSpeed = 10;
 	float meshSize = (perlinMeshSize - 1) / 2;
 	
