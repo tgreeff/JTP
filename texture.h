@@ -34,9 +34,9 @@ Vec3f skyMap(float a) {
 
 // fireMap
 Vec3f fireMap(float a) {
-	Vec3f black = Vec3f(0, 0, 0);
+	Vec3f yellow = Vec3f(0, 1, 1);
 	Vec3f color = Vec3f(0, 0, 1);
-	return ((1 - a) * black + a * color);
+	return ((1 - a) * yellow + a * color);
 }
 
 void loadBMP_custom(GLuint textureArray[], const char * imagepath, int n) {

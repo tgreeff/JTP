@@ -27,8 +27,40 @@ struct Mesh {
 	vector<int> face_index_normalPerFace;
 	vector<int> face_index_normalPerVertex;
 	vector<int> face_index_texture;
+	
+	Vec3f maxBoundingPoint;
+	Vec3f minBoundingPoint;
+	
 };
 
+float **heightMap;
+int xLength, yLength;
+
+/*
+float ** getHeightMap(Mesh* mesh) {
+	int size = mesh->dot_vertex.size();
+	const int indexLength = (int)(sqrt(size));
+	float ** meshHeight = new float*[indexLength];
+	for (int x = 0; x < indexLength; x++) {
+		meshHeight[x] = new float[indexLength];
+	}
+
+	int x = 0;
+	int y = 0;
+	for (Vec3f i : mesh->dot_vertex) {
+		meshHeight[x][y] = i.y;
+		x++;
+		if (x >= indexLength) {
+			x = 0;
+			y++;
+		}
+		if (y >= indexLength) {
+			y = 0;
+		}
+	}
+	return meshHeight;
+}
+*/
 // OBJ file - str to int
 int StrToInt(const string &str) {
 	int i;
@@ -395,10 +427,20 @@ Mesh* createPerlinPlane(int arena_width, int arena_depth, int arena_cell) {
 
 	ImprovedNoise ynoise;
 
+	xLength = n;
+	yLength = m;
+
+	heightMap = new float*[n];
+	for (int x = 0; x < n; x++) {
+		heightMap[x] = new float[m];
+	}
+
 	// vertices
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < m; j++) {
-			me->dot_vertex.push_back(Vec3<GLfloat>(i*arena_cell, ynoise.perlinMapMultiScale(i * 20, j * 20), j*arena_cell));
+			float y = ynoise.perlinMapMultiScale(i * 20, j * 20);
+			heightMap[i][j] = y;
+			me->dot_vertex.push_back(Vec3<GLfloat>(i*arena_cell, y, j*arena_cell));
 		}
 	}
 	//texture
