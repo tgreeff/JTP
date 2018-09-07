@@ -1,6 +1,8 @@
 /**
  * SER 431
  * https://speakerdeck.com/javiergs/ser431-lecture-04
+ Taylor Greeff - tgreeff
+ Preston Goulet - pegoulet
  **/
 
 #include <stdlib.h>
@@ -26,8 +28,7 @@ const int skyBoxMeshSize = 6000;
 // init
 void init() {
 	// mesh
-	mesh1 = createPerlinPlane(4000, 4000, 400);
-	//heightMap = getHeightMap(mesh1);
+	mesh1 = createPerlinPlane(4000, 4000, 200);
 	mesh2 = createCube();
 	mesh3 = createCube();
 	mesh4 = createCube();
@@ -35,6 +36,7 @@ void init() {
 	mesh6 = createPlane(boundaryMeshSize, boundaryMeshSize, boundaryMeshSize/10);
 	mesh7 = createCube();
 	
+	updateBoxPositon(mesh1, perlinMeshSize / 2, perlinMeshSize / 2);
 	// normals
 	calculateNormalPerFace(mesh1);
 	calculateNormalPerFace(mesh2);
@@ -146,7 +148,7 @@ void display(void) {
 	glPopMatrix();
 	// skybox
 	glPushMatrix();
-	glTranslatef(-skyBoxMeshSize / 2, 0, -skyBoxMeshSize / 2);
+	glTranslatef(-skyBoxMeshSize / 2, -1500, -skyBoxMeshSize / 2);
 	glCallList(display5);
 	glPopMatrix();
 	//lava/fire
@@ -178,6 +180,7 @@ void display(void) {
 	glColor3f(1.0, 1.0, 1.0);
 	renderBitmapString(0.0, window_height - 13.0f, 0.0f, "Use [Arrows] to move in plain");
 	renderBitmapString(0.0, window_height - 26.0f, 0.0f, "Use [W and S] to look up and down");
+	renderBitmapString(0.0, window_height - 39.0f, 0.0f, "Use [I, J, K and L] to move the cube");
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
@@ -209,21 +212,46 @@ void callbackKeyboard(unsigned char key, int x, int y) {
 		case 's': case 'S':
 			camera_viewing_y -= (10);
 			break;
+		case 'i': case 'I':
+			boxPositionZ -= (10);
+			break;
+		case 'k': case 'K':
+			boxPositionZ += (10);
+			break;
+		case 'j': case 'J':
+			boxPositionX -= (10);
+			break;
+		case 'l': case 'L':
+			boxPositionX += (10);
+			break;
+	}
+
+	updateBoxPositon(mesh1, perlinMeshSize / 2, perlinMeshSize / 2);
+
+	// box X verification
+	float meshSize = (perlinMeshSize - 1) / 2;
+	if (boxPositionX >meshSize) {
+		boxPositionX = meshSize;
+	}
+	else if (boxPositionX < -meshSize) {
+		boxPositionX = -meshSize;
+	}
+
+	// box Z verification
+	if (boxPositionZ > meshSize) {
+		boxPositionZ = meshSize;
+	}
+	else if (boxPositionZ < -meshSize) {
+		boxPositionZ = -meshSize;
 	}
 }
 
 // callback function for arrows
 void specialkeys(int key, int x, int y) {
 
-	int cameraSpeed = 1;
+	int cameraSpeed = 10;
 	int boxSpeed = 10;
 	float meshSize = (perlinMeshSize - 1) / 2;
-
-	updateBoxPositon(mesh1, perlinMeshSize / 2, perlinMeshSize / 2);
-
-	camera_viewing_x = boxPositionX;
-	camera_viewing_y = 10;
-	camera_viewing_z = boxPositionZ;
 	
 	if (key == GLUT_KEY_LEFT) {
 		total_moving_angle += -0.02;
@@ -237,42 +265,26 @@ void specialkeys(int key, int x, int y) {
 		// X movemment
 		if (camera_x <= meshSize && camera_x >= -meshSize) {
 			camera_x += (-cameraSpeed) * sin(total_moving_angle);//*0.1;
-			//camera_viewing_x += (-cameraSpeed) * sin(total_moving_angle);//*0.1
-		}
-
-		if (boxPositionX <= meshSize && boxPositionX >= -meshSize) {
-			boxPositionX += (-boxSpeed) * sin(total_moving_angle);
+			camera_viewing_x += (-cameraSpeed) * sin(total_moving_angle);//*0.1
 		}
 
 		// Z movement
 		if (camera_z <= meshSize && camera_z >= -meshSize) {
 			camera_z += (-cameraSpeed) * -cos(total_moving_angle);//*0.1;
-			//camera_viewing_z += (-cameraSpeed) * -cos(total_moving_angle);//*0.1;
+			camera_viewing_z += (-cameraSpeed) * -cos(total_moving_angle);//*0.1;
 		}	
-		
-		if (boxPositionZ <= meshSize && boxPositionZ >= -meshSize) {
-			boxPositionZ += (-boxSpeed) * -cos(total_moving_angle);
-		}
 			
 	} else if (key == GLUT_KEY_UP) {
 		//printf("Up key is pressed\n");
 		if (camera_x <= meshSize && camera_x >= -meshSize) {
 			camera_x += (cameraSpeed) * sin(total_moving_angle);//*0.1;
-			//camera_viewing_x += (cameraSpeed) * sin(total_moving_angle);//*0.1;
-		}
-
-		if (boxPositionX <= meshSize && boxPositionX >= -meshSize) {
-			boxPositionX += (boxSpeed) * sin(total_moving_angle);
+			camera_viewing_x += (cameraSpeed) * sin(total_moving_angle);//*0.1;
 		}
 		
 		if (camera_z <= meshSize && camera_z >= -meshSize) {
 			camera_z += (cameraSpeed) * -cos(total_moving_angle);//*0.1;
-			//camera_viewing_z += (cameraSpeed) * -cos(total_moving_angle);//*0.1;
+			camera_viewing_z += (cameraSpeed) * -cos(total_moving_angle);//*0.1;
 		}	
-		
-		if (boxPositionZ <= meshSize && boxPositionZ >= -meshSize) {
-			boxPositionZ += (boxSpeed) * -cos(total_moving_angle);
-		}
 	}
 
 	// Camera X verification
@@ -289,22 +301,6 @@ void specialkeys(int key, int x, int y) {
 	}
 	else if (camera_z < -meshSize) {
 		camera_z = -meshSize;
-	}
-
-	// box X verification
-	if (boxPositionX >meshSize) {
-		boxPositionX = meshSize;
-	}
-	else if (boxPositionX < -meshSize) {
-		boxPositionX = -meshSize;
-	}
-
-	// box Z verification
-	if (boxPositionZ >meshSize) {
-		boxPositionZ = meshSize;
-	}
-	else if (boxPositionZ < -meshSize) {
-		boxPositionZ = -meshSize;
 	}
 }
 
