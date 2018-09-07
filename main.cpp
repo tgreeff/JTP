@@ -14,22 +14,26 @@
 
 
 // global
-Mesh *mesh1, *mesh2, *mesh3, *mesh4, *mesh5, *mesh6;
-GLuint display1, display2, display3, display4, display5, display6;
+Mesh *mesh1, *mesh2, *mesh3, *mesh4, *mesh5, *mesh6, *mesh7;
+GLuint display1, display2, display3, display4, display5, display6, display7;
 GLuint textures[5];
 
 const int boundaryMeshSize = 6000;
 const int perlinMeshSize = 4000;
 const int skyBoxMeshSize = 6000;
+
+
 // init
 void init() {
 	// mesh
 	mesh1 = createPerlinPlane(4000, 4000, 400);
+	//heightMap = getHeightMap(mesh1);
 	mesh2 = createCube();
 	mesh3 = createCube();
 	mesh4 = createCube();
 	mesh5 = createSkyBox(skyBoxMeshSize);
 	mesh6 = createPlane(boundaryMeshSize, boundaryMeshSize, boundaryMeshSize/10);
+	mesh7 = createCube();
 	
 	// normals
 	calculateNormalPerFace(mesh1);
@@ -38,12 +42,15 @@ void init() {
 	calculateNormalPerFace(mesh4);
 	calculateNormalPerFace(mesh5);
 	calculateNormalPerFace(mesh6);
+	calculateNormalPerFace(mesh6);
+	calculateNormalPerFace(mesh7);
 	calculateNormalPerVertex(mesh1);
 	calculateNormalPerVertex(mesh2);
 	calculateNormalPerVertex(mesh3);
 	calculateNormalPerVertex(mesh4);
 	calculateNormalPerVertex(mesh5);
 	calculateNormalPerVertex(mesh6);
+	calculateNormalPerVertex(mesh7);
 	
 	// textures
 	loadBMP_custom(textures, "_BMP_files/brick.bmp", 0);
@@ -52,6 +59,7 @@ void init() {
 	codedTexture(textures, 3, 1); //Marble texture - noise marble. Type=1
 	loadBMP_custom(textures, "_BMP_files/cubesky.bmp", 4);
 	codedTexture(textures, 5, 2); //Fire texture - noise fire. Type=2
+	codedTexture(textures, 6, 0); //Fire texture - noise fire. Type=2
 
 	// display lists
 	display1 = meshToDisplayList(mesh1, 1, textures[0]);
@@ -60,6 +68,7 @@ void init() {
 	display4 = meshToDisplayList(mesh4, 4, textures[3]);
 	display5 = meshToDisplayList(mesh5, 5, textures[4]);
 	display6 = meshToDisplayList(mesh6, 6, textures[5]);
+	display7 = meshToDisplayList(mesh7, 7, textures[6]);
 
 	// configuration
 	glShadeModel(GL_SMOOTH);
@@ -68,7 +77,7 @@ void init() {
 	// light
 	glEnable(GL_LIGHT0);
 	glEnable(GL_LIGHTING);
-	GLfloat light_ambient[]  = { 255.5, 255.5, 255.5, 1.0 };
+	GLfloat light_ambient[]  = { 255.0, 255.0, 255.0, 1.0 };
 	GLfloat light_diffuse[]  = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat light_position[] = { 0.0, 0.0, 1.0, 0.0 };
@@ -117,7 +126,7 @@ void display(void) {
 
 	//plane
 	glPushMatrix();
-	glTranslatef(-2000, 200, -2000);
+	glTranslatef(-perlinMeshSize/2, 0, -perlinMeshSize/2);
 	glCallList(display1);
 	glPopMatrix();
 	// box 1
@@ -135,18 +144,31 @@ void display(void) {
 	glTranslatef(-200, 300, 0);
 	glCallList(display4);
 	glPopMatrix();
-	// end
 	// skybox
 	glPushMatrix();
-	glTranslatef(-skyBoxMeshSize / 2, -1, -skyBoxMeshSize / 2);
+	glTranslatef(-skyBoxMeshSize / 2, 0, -skyBoxMeshSize / 2);
 	glCallList(display5);
 	glPopMatrix();
-	// end
+	//lava/fire
 	glPushMatrix();
-	glTranslatef(-boundaryMeshSize/2, 199.9, -boundaryMeshSize / 2);
+	glTranslatef(-boundaryMeshSize / 2, 1 - 0.01, -boundaryMeshSize / 2);
 	glCallList(display6);
 	glPopMatrix();
-	//
+	//moving box
+	glPushMatrix();
+	try {
+		boxPositionY = heightMap[(int)boxPositionX][(int)boxPositionZ];
+	}
+	catch (exception e) {
+		boxPositionY = 0;
+	}	
+	glTranslatef(boxPositionX, boxPositionY, boxPositionZ);
+	glRotatef(boxRotationX, 1.0, 0.0, 0.0);
+	glRotatef(boxRotationY, 0.0, 1.0, 0.0);
+	glRotatef(boxRotationZ, 0.0, 0.0, 1.0);
+	glCallList(display7);
+	glPopMatrix();
+	//end
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
@@ -208,46 +230,61 @@ void specialkeys(int key, int x, int y) {
 		printf("Down key is pressed\n");
 		//camera_z += 10;
 		// X movemment
-		if (camera_x <= perlinMeshSize / 2 && camera_x >= -perlinMeshSize / 2) {
+		if (camera_x <= (perlinMeshSize - 1) / 2 && camera_x >= -(perlinMeshSize - 1) / 2) {
 			camera_x += (-10) * sin(total_moving_angle);//*0.1;
-			camera_viewing_x += (-10) * sin(total_moving_angle);//*0.1;
+			camera_viewing_x += (-10) * sin(total_moving_angle);//*0.1
+		}
+
+		if (boxPositionX <= (perlinMeshSize - 1) / 2 && boxPositionX >= -(perlinMeshSize - 1) / 2) {
+			boxPositionX += (-10) * sin(total_moving_angle);
 		}
 
 		// Z movement
-		if (camera_z <= perlinMeshSize / 2 && camera_z >= -perlinMeshSize / 2) {
+		if (camera_z <= (perlinMeshSize - 1) / 2 && camera_z >= -(perlinMeshSize - 1) / 2) {
 			camera_z += (-10) * -cos(total_moving_angle);//*0.1;
 			camera_viewing_z += (-10) * -cos(total_moving_angle);//*0.1;
 		}	
-		//camera_viewing_y -= 10;
+		
+		if (boxPositionZ <= (perlinMeshSize - 1) / 2 && boxPositionZ >= -(perlinMeshSize - 1) / 2) {
+			boxPositionZ += (-10) * -cos(total_moving_angle);
+		}
 			
 	} else if (key == GLUT_KEY_UP) {
 		printf("Up key is pressed\n");
-		if (camera_x <= boundaryMeshSize / 2 && camera_x >= -boundaryMeshSize / 2) {
+		if (camera_x <= perlinMeshSize / 2 && camera_x >= -perlinMeshSize / 2) {
 			camera_x += (10) * sin(total_moving_angle);//*0.1;
 			camera_viewing_x += (10) * sin(total_moving_angle);//*0.1;
 		}
 
-		if (camera_z <= boundaryMeshSize / 2 && camera_z >= -boundaryMeshSize / 2) {
+		if (boxPositionX <= (perlinMeshSize - 1) / 2 && boxPositionX >= -(perlinMeshSize - 1) / 2) {
+			boxPositionX += (10) * sin(total_moving_angle);
+		}
+		
+		if (camera_z <= perlinMeshSize / 2 && camera_z >= -perlinMeshSize / 2) {
 			camera_z += (10) * -cos(total_moving_angle);//*0.1;
 			camera_viewing_z += (10) * -cos(total_moving_angle);//*0.1;
 		}	
-		//camera_viewing_y += 10;
+		
+		if (boxPositionZ <= (perlinMeshSize - 1) / 2 && boxPositionZ >= -(perlinMeshSize - 1) / 2) {
+			boxPositionZ += (10) * -cos(total_moving_angle);
+		}
 	}
 
+
 	// Camera X verification
-	if (camera_x > 1000) {
-		camera_x = 1000;
+	if (camera_x > perlinMeshSize / 2) {
+		camera_x = perlinMeshSize / 2;
 	}
-	else if (camera_x < -1000) {
-		camera_x = -1000;
+	else if (camera_x < -perlinMeshSize / 2) {
+		camera_x = -perlinMeshSize / 2;
 	}
 
 	// Camera Z verification
-	if (camera_z > 1000) {
-		camera_z = 1000;
+	if (camera_z > perlinMeshSize / 2) {
+		camera_z = perlinMeshSize / 2;
 	}
-	else if (camera_z < -1000) {
-		camera_z = -1000;
+	else if (camera_z < -perlinMeshSize / 2) {
+		camera_z = -perlinMeshSize / 2;
 	}
 }
 

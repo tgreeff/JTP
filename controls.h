@@ -29,3 +29,11 @@ float camera_viewing_y = 0.0;
 float camera_viewing_z = 0.0;
 
 float total_moving_angle = 0.0;
+
+//Moving box values
+float boxPositionX = 0.0;
+float boxPositionY = 0.0;
+float boxPositionZ = 0.0;
+float boxRotationX = 0.0;
+float boxRotationY = 0.0;
+float boxRotationZ = 0.0;
