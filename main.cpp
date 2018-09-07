@@ -225,6 +225,23 @@ void callbackKeyboard(unsigned char key, int x, int y) {
 	}
 
 	updateBoxPositon(mesh1, perlinMeshSize / 2, perlinMeshSize / 2);
+
+	// box X verification
+	float meshSize = (perlinMeshSize - 1) / 2;
+	if (boxPositionX >meshSize) {
+		boxPositionX = meshSize;
+	}
+	else if (boxPositionX < -meshSize) {
+		boxPositionX = -meshSize;
+	}
+
+	// box Z verification
+	if (boxPositionZ >meshSize) {
+		boxPositionZ = meshSize;
+	}
+	else if (boxPositionZ < -meshSize) {
+		boxPositionZ = -meshSize;
+	}
 }
 
 // callback function for arrows
@@ -282,22 +299,6 @@ void specialkeys(int key, int x, int y) {
 	}
 	else if (camera_z < -meshSize) {
 		camera_z = -meshSize;
-	}
-
-	// box X verification
-	if (boxPositionX >meshSize) {
-		boxPositionX = meshSize;
-	}
-	else if (boxPositionX < -meshSize) {
-		boxPositionX = -meshSize;
-	}
-
-	// box Z verification
-	if (boxPositionZ >meshSize) {
-		boxPositionZ = meshSize;
-	}
-	else if (boxPositionZ < -meshSize) {
-		boxPositionZ = -meshSize;
 	}
 }
 
