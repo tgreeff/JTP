@@ -34,6 +34,7 @@ struct Mesh {
 };
 
 float **heightMap;
+int xLength, yLength;
 
 /*
 float ** getHeightMap(Mesh* mesh) {
@@ -425,6 +426,9 @@ Mesh* createPerlinPlane(int arena_width, int arena_depth, int arena_cell) {
 	int m = (arena_cell + arena_depth) / arena_cell;
 
 	ImprovedNoise ynoise;
+
+	xLength = n;
+	yLength = m;
 
 	heightMap = new float*[n];
 	for (int x = 0; x < n; x++) {

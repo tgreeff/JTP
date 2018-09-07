@@ -21,8 +21,8 @@ float y_angle = 0.0;
 
 // camera
 float camera_x = 0.0;
-float camera_y = 150.0;
-float camera_z = 320.0;
+float camera_y = 300.0;
+float camera_z = 600.0;
 
 float camera_viewing_x = 0.0;
 float camera_viewing_y = 0.0;
@@ -37,3 +37,11 @@ float boxPositionZ = 0.0;
 float boxRotationX = 0.0;
 float boxRotationY = 0.0;
 float boxRotationZ = 0.0;
+
+void updateBoxPositon(Mesh* mesh, int xOffset, int zOffset) {
+	for (Vec3f i : mesh->dot_vertex) {
+		if (abs(boxPositionX - (i.x - xOffset)) < 200 && abs(boxPositionZ - (i.z - zOffset)) < 200) {
+			boxPositionY = 10 + i.y;
+		}
+	}
+}

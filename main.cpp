@@ -155,16 +155,10 @@ void display(void) {
 	glCallList(display6);
 	glPopMatrix();
 	//moving box
-	glPushMatrix();
-	try {
-		boxPositionY = heightMap[(int)boxPositionX][(int)boxPositionZ];
-	}
-	catch (exception e) {
-		boxPositionY = 0;
-	}	
+	glPushMatrix();	
 	glTranslatef(boxPositionX, boxPositionY, boxPositionZ);
 	glRotatef(boxRotationX, 1.0, 0.0, 0.0);
-	glRotatef(boxRotationY, 0.0, 1.0, 0.0);
+	glRotatef(total_moving_angle, 0.0, 1.0, 0.0);
 	glRotatef(boxRotationZ, 0.0, 0.0, 1.0);
 	glCallList(display7);
 	glPopMatrix();
@@ -220,6 +214,17 @@ void callbackKeyboard(unsigned char key, int x, int y) {
 
 // callback function for arrows
 void specialkeys(int key, int x, int y) {
+
+	int cameraSpeed = 1;
+	int boxSpeed = 10;
+	float meshSize = (perlinMeshSize - 1) / 2;
+
+	updateBoxPositon(mesh1, perlinMeshSize / 2, perlinMeshSize / 2);
+
+	camera_viewing_x = boxPositionX;
+	camera_viewing_y = 10;
+	camera_viewing_z = boxPositionZ;
+	
 	if (key == GLUT_KEY_LEFT) {
 		total_moving_angle += -0.02;
 		rotate_point(-0.02);
@@ -227,64 +232,79 @@ void specialkeys(int key, int x, int y) {
 		total_moving_angle += 0.02; 
 		rotate_point(0.02);
 	} else if (key == GLUT_KEY_DOWN) {
-		printf("Down key is pressed\n");
+		//printf("Down key is pressed\n");
 		//camera_z += 10;
 		// X movemment
-		if (camera_x <= (perlinMeshSize - 1) / 2 && camera_x >= -(perlinMeshSize - 1) / 2) {
-			camera_x += (-10) * sin(total_moving_angle);//*0.1;
-			camera_viewing_x += (-10) * sin(total_moving_angle);//*0.1
+		if (camera_x <= meshSize && camera_x >= -meshSize) {
+			camera_x += (-cameraSpeed) * sin(total_moving_angle);//*0.1;
+			//camera_viewing_x += (-cameraSpeed) * sin(total_moving_angle);//*0.1
 		}
 
-		if (boxPositionX <= (perlinMeshSize - 1) / 2 && boxPositionX >= -(perlinMeshSize - 1) / 2) {
-			boxPositionX += (-10) * sin(total_moving_angle);
+		if (boxPositionX <= meshSize && boxPositionX >= -meshSize) {
+			boxPositionX += (-boxSpeed) * sin(total_moving_angle);
 		}
 
 		// Z movement
-		if (camera_z <= (perlinMeshSize - 1) / 2 && camera_z >= -(perlinMeshSize - 1) / 2) {
-			camera_z += (-10) * -cos(total_moving_angle);//*0.1;
-			camera_viewing_z += (-10) * -cos(total_moving_angle);//*0.1;
+		if (camera_z <= meshSize && camera_z >= -meshSize) {
+			camera_z += (-cameraSpeed) * -cos(total_moving_angle);//*0.1;
+			//camera_viewing_z += (-cameraSpeed) * -cos(total_moving_angle);//*0.1;
 		}	
 		
-		if (boxPositionZ <= (perlinMeshSize - 1) / 2 && boxPositionZ >= -(perlinMeshSize - 1) / 2) {
-			boxPositionZ += (-10) * -cos(total_moving_angle);
+		if (boxPositionZ <= meshSize && boxPositionZ >= -meshSize) {
+			boxPositionZ += (-boxSpeed) * -cos(total_moving_angle);
 		}
 			
 	} else if (key == GLUT_KEY_UP) {
-		printf("Up key is pressed\n");
-		if (camera_x <= perlinMeshSize / 2 && camera_x >= -perlinMeshSize / 2) {
-			camera_x += (10) * sin(total_moving_angle);//*0.1;
-			camera_viewing_x += (10) * sin(total_moving_angle);//*0.1;
+		//printf("Up key is pressed\n");
+		if (camera_x <= meshSize && camera_x >= -meshSize) {
+			camera_x += (cameraSpeed) * sin(total_moving_angle);//*0.1;
+			//camera_viewing_x += (cameraSpeed) * sin(total_moving_angle);//*0.1;
 		}
 
-		if (boxPositionX <= (perlinMeshSize - 1) / 2 && boxPositionX >= -(perlinMeshSize - 1) / 2) {
-			boxPositionX += (10) * sin(total_moving_angle);
+		if (boxPositionX <= meshSize && boxPositionX >= -meshSize) {
+			boxPositionX += (boxSpeed) * sin(total_moving_angle);
 		}
 		
-		if (camera_z <= perlinMeshSize / 2 && camera_z >= -perlinMeshSize / 2) {
-			camera_z += (10) * -cos(total_moving_angle);//*0.1;
-			camera_viewing_z += (10) * -cos(total_moving_angle);//*0.1;
+		if (camera_z <= meshSize && camera_z >= -meshSize) {
+			camera_z += (cameraSpeed) * -cos(total_moving_angle);//*0.1;
+			//camera_viewing_z += (cameraSpeed) * -cos(total_moving_angle);//*0.1;
 		}	
 		
-		if (boxPositionZ <= (perlinMeshSize - 1) / 2 && boxPositionZ >= -(perlinMeshSize - 1) / 2) {
-			boxPositionZ += (10) * -cos(total_moving_angle);
+		if (boxPositionZ <= meshSize && boxPositionZ >= -meshSize) {
+			boxPositionZ += (boxSpeed) * -cos(total_moving_angle);
 		}
 	}
 
-
 	// Camera X verification
-	if (camera_x > perlinMeshSize / 2) {
-		camera_x = perlinMeshSize / 2;
+	if (camera_x >  meshSize) {
+		camera_x = meshSize;
 	}
-	else if (camera_x < -perlinMeshSize / 2) {
-		camera_x = -perlinMeshSize / 2;
+	else if (camera_x < -meshSize) {
+		camera_x = -meshSize;
 	}
 
 	// Camera Z verification
-	if (camera_z > perlinMeshSize / 2) {
-		camera_z = perlinMeshSize / 2;
+	if (camera_z >meshSize) {
+		camera_z = meshSize;
 	}
-	else if (camera_z < -perlinMeshSize / 2) {
-		camera_z = -perlinMeshSize / 2;
+	else if (camera_z < -meshSize) {
+		camera_z = -meshSize;
+	}
+
+	// box X verification
+	if (boxPositionX >meshSize) {
+		boxPositionX = meshSize;
+	}
+	else if (boxPositionX < -meshSize) {
+		boxPositionX = -meshSize;
+	}
+
+	// box Z verification
+	if (boxPositionZ >meshSize) {
+		boxPositionZ = meshSize;
+	}
+	else if (boxPositionZ < -meshSize) {
+		boxPositionZ = -meshSize;
 	}
 }
 
