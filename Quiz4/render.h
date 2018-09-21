@@ -58,7 +58,7 @@ void drawLightArrow() {
 	// draw arrowhead. 
 	glTranslatef(light_position[0], light_position[1], light_position[2]);
 	glRotatef(lightAngle * -180.0 / 3.141592, 0, 1, 0);
-	//glRotatef(atan(light_position[1] / 500) * 180.0 / 3.141592, 0, 0, 1);
+	glRotatef(atan(light_position[1] / 500) * 180.0 / 3.141592, 0, 0, 1);
 	glBegin(GL_TRIANGLE_FAN);
 	glVertex3f(0, 0, 0);
 	glVertex3f(20, 10, 10);

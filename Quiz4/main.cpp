@@ -13,19 +13,20 @@
 #include "render.h"
 #include "controls.h"
 
+#define PI 3.14159
+
  // global
 Mesh *mesh1, *mesh2, *mesh3, *mesh4, *mesh5, *mesh6;
-GLuint display1, display2, display3, display4, display5, display6;
+GLuint display3, display5;
 GLuint textures[6];
 
 // init
 void init() {
-	addMenu();
+	//addMenu();
 
 	// mesh
 	mesh3 = createCube(1);
 	mesh5 = createSkyBox(6000);
-
 
 	// normals
 	calculateNormalPerFace(mesh3);
@@ -34,16 +35,12 @@ void init() {
 	calculateNormalPerVertex(mesh5);
 
 	// textures
-
-	//loadBMP_custom(textures, "../BMP_files/mirror.bmp", 1);
-	codedTexture(textures, 2, 0); //Sky texture - noise multiscale. Type=0
-	codedTexture(textures, 3, 1); //Marble texture - noise marble. Type=1
-	loadBMP_custom(textures, "../BMP_files/cubesky.bmp", 4);
-	loadBMP_custom(textures, "../BMP_files/reflection.bmp", 5);
+	codedTexture(textures, 0, 0); //Sky texture - noise multiscale. Type=0
+	loadBMP_custom(textures, "../BMP_files/cubesky.bmp", 1);
 
 	// display lists
-	display3 = meshToDisplayList(mesh3, 3, textures[2]);
-	display5 = meshToDisplayList(mesh5, 5, textures[4]);
+	display3 = meshToDisplayList(mesh3, 3, textures[0]);
+	display5 = meshToDisplayList(mesh5, 5, textures[1]);
 
 
 	// configuration
@@ -55,10 +52,10 @@ void init() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearStencil(0); //define the value to use as clean.
 
-	dot_vertex_floor.push_back(Vec3<GLfloat>(-2000.0, 2000.0, 0.0));
-	dot_vertex_floor.push_back(Vec3<GLfloat>(2000.0, 2000.0, 0.0));
-	dot_vertex_floor.push_back(Vec3<GLfloat>(2000.0, -2000.0, 0.0));
-	dot_vertex_floor.push_back(Vec3<GLfloat>(-2000.0, -2000.0, 0.0));
+	dot_vertex_floor.push_back(Vec3<GLfloat>(-3000.0, -3000.0, 0.0));
+	dot_vertex_floor.push_back(Vec3<GLfloat>(3000.0, -3000.0, 0.0));
+	dot_vertex_floor.push_back(Vec3<GLfloat>(3000.0, 3000.0, 0.0));
+	dot_vertex_floor.push_back(Vec3<GLfloat>(-3000.0, 3000.0, 0.0));
 	calculate_floor_normal(&floor_normal, dot_vertex_floor);
 
 	// light
@@ -98,15 +95,17 @@ void renderBitmapString(float x, float y, float z, const char *string) {
 
 // display
 void display(void) {
+
 	// STENCIL-STEP 3. enable and configure
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	// light source position
-	light_position[0] = light_x;
+	light_position[0] = 500 * cos(lightAngle) + light_x;
 	light_position[1] = light_y;
-	light_position[2] = light_x;
+	light_position[2] = 500 * sin(lightAngle)+ light_z;
 	light_position[3] = 0.0; // directional light
-	lightAngle = 0.0;
+	lightAngle = 0.5 * PI;
+	
 	// Calculate Shadow matrix
 	shadowMatrix(shadow_matrix, floor_normal, light_position);
 
@@ -120,11 +119,9 @@ void display(void) {
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
-	// lookAt
-	// gluLookAt(0.0f, 40.0f, 320.0,	0.0f, 1.0f, -1.0f,		0.0f, 1.0f, 0.0f);
 
-	gluLookAt(camera_x, camera_y, camera_z, camera_viewing_x, camera_viewing_y, camera_viewing_z, 0.0f, 1.0f, 0.0f);
 	// camera
+	gluLookAt(camera_x, camera_y, camera_z, camera_viewing_x, camera_viewing_y, camera_viewing_z, 0.0f, 1.0f, 0.0f);
 	glScalef(scale, scale, scale);
 	glRotatef(x_angle, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_angle, 0.0f, 1.0f, 0.0f);
@@ -147,15 +144,17 @@ void display(void) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glColor4f(1.0, 1.0, 1.0, 0.3);
+	
 	glPushMatrix();
 	glDisable(GL_LIGHTING);
-	glTranslatef(-900, 0, -900);
-	glCallList(display1);
+	glTranslatef(-3000, -3000, -1000);
+	glCallList(display5);
 	glEnable(GL_LIGHTING);
 	glPopMatrix();
+
 	glDisable(GL_BLEND);
 	// Shadows
-
+	
 	if (renderShadow) {
 		glStencilFunc(GL_EQUAL, 1, 0xFFFFFFFF);
 		glStencilOp(GL_ZERO, GL_ZERO, GL_ZERO);
@@ -164,84 +163,35 @@ void display(void) {
 		// Render 50% black shadow color on top of whatever the floor appareance is
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glDisable(GL_LIGHTING);  /* Force the 50% black. */
+		glDisable(GL_LIGHTING);  ///* Force the 50% black.
 		glColor4f(0.0, 0.0, 0.0, 0.5);
 		glPushMatrix();
 		// Project the shadow
 		glMultMatrixf((GLfloat *)shadow_matrix);
 		// boxes
 		glDisable(GL_DEPTH_TEST);
-		glTranslatef(200, 0, 0);
+
+		glTranslatef(box_x, box_y, box_z);
 		glCallList(display3);
 
 		glEnable(GL_DEPTH_TEST);
 		glPopMatrix();
+
 		glDisable(GL_BLEND);
 		glEnable(GL_LIGHTING);
 		// To eliminate depth buffer artifacts, use glDisable(GL_POLYGON_OFFSET_FILL);
 		glDisable(GL_STENCIL_TEST);
 	}
 
-	//=====================================
-	//		Reflections
-	//=====================================
-	glEnable(GL_STENCIL_TEST); //Start using the stencil
-	glDisable(GL_DEPTH_TEST);
-	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); //Disable writing colors in frame buffer
-	glStencilFunc(GL_ALWAYS, 1, 0xFFFFFFFF); //Place a 1 where rendered
-	glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE); 	//Replace where rendered
-														// PLAIN for the stencil
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-	//ADD reflections space here
-
-	glEnable(GL_DEPTH_TEST);
-
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); //Reenable color
-	glStencilFunc(GL_EQUAL, 1, 0xFFFFFFFF);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP); //Keep the pixel
-
-	if (isReflectionOn) {
-		glPushMatrix();
-		glScalef(1.0, 1.0, -1.0);
-		//draw object with new stencil settings
-		glPopMatrix();
-	}
-
-	// STENCIL-STEP 4. disable it
-	glDisable(GL_STENCIL_TEST);
-
-	glEnable(GL_BLEND);
-	glDisable(GL_LIGHTING);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glColor4f(0.7, 0.0, 0.0, 0.3);
-	glColor4f(1.0, 1.0, 1.0, 0.3);
-
-	//Place plane for reflection
-
-	glEnable(GL_LIGHTING);
-	glDisable(GL_BLEND);
-
 	// Enable Culling
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 
 	// box 3
 	glPushMatrix();
 	glTranslatef(box_x, box_y, box_z);
-	glCallList(display4); //Box under camera
+	glCallList(display3); //Box under camera
 	glPopMatrix();
 
-	//plane
-	//glPushMatrix();
-	//glTranslatef(-1000, 200, -1000);
-	//glCallList(display1);
-	//glPopMatrix();
-
-	// end
-	// skybox
-	glPushMatrix();
-	glTranslatef(-3000, -3000, -2000);
-	glCallList(display5);
-	glPopMatrix();
 
 	drawLightArrow();
 	// end
@@ -258,16 +208,17 @@ void display(void) {
 	glPushMatrix();
 	glLoadIdentity();
 	glColor3f(1.0, 1.0, 1.0);
-	renderBitmapString(0.0, window_height - 13.0f, 0.0f, "Use [Arrows] to move in plain");
-	renderBitmapString(0.0, window_height - 26.0f, 0.0f, "Use [W and S] to look up and down");
+	renderBitmapString(0.0, window_height - 13.0f, 0.0f, "Use [Arrows] to move the box");
+	renderBitmapString(0.0, window_height - 26.0f, 0.0f, "Use [W, A, S, and D] to move the light");
 	renderBitmapString(0.0, window_height - 39.0f, 0.0f, "Use [Right Click] to open the menu");
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 
-	glDisable(GL_CULL_FACE);
+	//glDisable(GL_CULL_FACE);
 	glutSwapBuffers();
+
 }
 
 // rotate what the user see
@@ -289,16 +240,16 @@ void rotate_point(float angle) {
 void callbackKeyboard(unsigned char key, int x, int y) {
 	switch (key) {
 	case 'w': case 'W':
-		light_y += (.10);
+		light_y += (10);
 		break;
 	case 's': case 'S':
-		light_y -= (1.0);
+		light_y -= (10);
 		break;
 	case 'a': case 'A':
-		light_x -= (1.0);
+		light_x -= (10);
 		break;
 	case 'd': case 'D':
-		light_x += (1.0);
+		light_x += (10);
 		break;
 	}
 }
